@@ -14,12 +14,12 @@ import java.util.Date;
 @AllArgsConstructor
 public enum AgeGroup {
 
-    INFANTS(10, "영유아"),
-    TEENAGER(20, "10대"),
-    TWENTIES(30, "20대"),
-    THIRTIES(40, "30대"),
-    FORTIES(50, "40대"),
-    FIFTIES(60, "50대"),
+    INFANTS(9, "영유아"),
+    TEENAGER(19, "10대"),
+    TWENTIES(29, "20대"),
+    THIRTIES(39, "30대"),
+    FORTIES(49, "40대"),
+    FIFTIES(59, "50대"),
     OVER_SIXTIES(999, "60대 이상");
 
     private int ageGroupMax;
@@ -31,7 +31,7 @@ public enum AgeGroup {
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         int age = currentYear - userBirthYear + 1;
         for(AgeGroup ageGroup : AgeGroup.values()){
-            if(ageGroup.getAgeGroupMax() > age){
+            if(ageGroup.getAgeGroupMax() >= age){
                 return ageGroup.getName();
             }
         }

@@ -17,4 +17,7 @@ public interface OrderDao {
     @Select("SELECT menu_id, price, quantity, status FROM order_details OD INNER JOIN order_status_logs OSL "+
             "ON OD.order_id = OSL.order_id WHERE OSL.modified_date > NOW() - INTERVAL #{minute} MINUTE")
     List<OrderDetailWithStatus> getOrderDetailWithStatusByIntervalMinute(int minute);
+
+    @Select("SELECT user_agent FROM orders WHERE order_date > NOW() - INTERVAL #{minute} MINUTE")
+    List<OrderWithUserAgent> getUserAgentByIntervalMinute(int minute);
 }

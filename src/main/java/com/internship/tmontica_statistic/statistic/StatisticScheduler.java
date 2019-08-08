@@ -2,11 +2,14 @@ package com.internship.tmontica_statistic.statistic;
 
 import com.internship.tmontica_statistic.menu.MenuDao;
 import com.internship.tmontica_statistic.menu.vo.MenuIdName;
+import com.internship.tmontica_statistic.order.OrderWithUserAgent;
 import com.internship.tmontica_statistic.order.OrderWithUserId;
 import com.internship.tmontica_statistic.order.OrderDao;
 import com.internship.tmontica_statistic.order.OrderDetailWithStatus;
 import com.internship.tmontica_statistic.statistic.datatype.AgeGroup;
-import com.internship.tmontica_statistic.statistic.vo.SalesWithAgeData;
+import com.internship.tmontica_statistic.statistic.datatype.UserAgentType;
+import com.internship.tmontica_statistic.statistic.vo.OrderWithUserAgentData;
+import com.internship.tmontica_statistic.statistic.vo.SalesWithAgeGroupData;
 import com.internship.tmontica_statistic.statistic.vo.SalesWithMenuData;
 import com.internship.tmontica_statistic.user.UserDao;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -28,6 +33,7 @@ public class StatisticScheduler {
     private final StatisticDao statisticDao;
     private static final int SCHEDULING_INTERVAL_MINUTE = 1;
 
+    //** SCHEDULING INTERVAL 분마다 연령별 매출을 집계하는 스케쥴러 **//
     @Scheduled(cron = "0  0/"+SCHEDULING_INTERVAL_MINUTE+" *  *  * ?")
     public void makeTotalSalesByAgeGroupData(){
 
@@ -43,11 +49,12 @@ public class StatisticScheduler {
                         Integer::sum));
 
         for(String ageGroup : totalSalesByAgeGroup.keySet()){
-            statisticDao.saveSalesAgeGroupData(new SalesWithAgeData(ageGroup, totalSalesByAgeGroup.get(ageGroup)));
+            statisticDao.saveSalesAgeGroupData(new SalesWithAgeGroupData(ageGroup, totalSalesByAgeGroup.get(ageGroup)));
         }
         log.info("[scheduler] end makeTotalSalesByAgeGroup scheduler");
     }
 
+    //** SCHEDULING INTERVAL 분마다 메뉴별 매출을 집계하는 스케쥴러 **//
     @Scheduled(cron = "0  0/"+SCHEDULING_INTERVAL_MINUTE+" *  *  * ?")
     public void makeTotalSalesByMenu(){
 
@@ -64,5 +71,28 @@ public class StatisticScheduler {
             statisticDao.saveSalesMenuData(new SalesWithMenuData(menuId, totalSalesByMenuId.get(menuId), menuIdMap.get(menuId)));
         }
         log.info("[scheduler] end makeTotalSalesByMenu scheduler");
+    }
+
+    //** SCHEDULING INTERVAL 분마다 접속기기별 주문건수 집계하는 스케쥴러 **//
+    @Scheduled(cron = "0  0/"+SCHEDULING_INTERVAL_MINUTE+" *  *  * ?")
+    public void makeTatalUserAgent(){
+
+        log.info("[scheduler] start makeTotalUserAgent scheduler");
+        List<OrderWithUserAgent> userAgentCountDataList = orderDao.getUserAgentByIntervalMinute(SCHEDULING_INTERVAL_MINUTE);
+        Map<String, Integer> userAgentCountMap = new HashMap<>();
+
+        for(OrderWithUserAgent orderWithUserAgent : userAgentCountDataList){
+            for(UserAgentType userAgentType : UserAgentType.values()){
+                if (orderWithUserAgent.getUserAgent().equals(userAgentType.getNameEng())) {
+                    userAgentCountMap.put(userAgentType.getNameEng(),
+                            userAgentCountMap.getOrDefault(userAgentType.getNameEng(), 0) + 1);
+                }
+            }
+        }
+
+        for(String userAgent : userAgentCountMap.keySet()){
+            statisticDao.saveOrderUserAgnetData(new OrderWithUserAgentData(userAgent, userAgentCountMap.get(userAgent)));
+        }
+        log.info("[scheduler] end makeTotalUserAgent scheduler");
     }
 }

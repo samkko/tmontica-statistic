@@ -18,7 +18,7 @@ public class TmonticaStatisticApplication {
     @Bean
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
-        taskScheduler.setPoolSize(2);
+        taskScheduler.setPoolSize(3);
         return taskScheduler;
     }
 }
