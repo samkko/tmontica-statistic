@@ -42,12 +42,13 @@ public class StatisticScheduler {
         Map<String, Integer> totalPriceByUser = orderDao.getOrderByDate(SCHEDULING_INTERVAL_MINUTE).stream().filter(OrderWithUserId::isRealSales)
                 .collect(Collectors.groupingBy(OrderWithUserId::getUserId, Collectors.summingInt(OrderWithUserId::getRealPrice)));
 
-        // 연령별 총구매액 맵
+        // 연령별 총구매액 맵 -> toMap 3번째 인자 없으면 터짐..
         Map<String, Integer> totalSalesByAgeGroup =  userDao.getAllUser().stream()
                 .filter(v->totalPriceByUser.keySet().contains(v.getId()))
                 .collect(Collectors.toMap(v-> AgeGroup.getAgeGroup(v.getBirthDate()), v->totalPriceByUser.get(v.getId()),
                         Integer::sum));
 
+        //배치 타입
         for(String ageGroup : totalSalesByAgeGroup.keySet()){
             statisticDao.saveSalesAgeGroupData(new SalesWithAgeGroupData(ageGroup, totalSalesByAgeGroup.get(ageGroup)));
         }

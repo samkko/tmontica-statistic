@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Insert;
 
 public interface StatisticDao {
 
+    //List로 한번에 넣는법
     @Insert("INSERT INTO sales_agegroup_data (age_group , total_price) " +
             "VALUES(#{ageGroup}, #{totalPrice})")
     int saveSalesAgeGroupData(SalesWithAgeGroupData salesWithAgeGroupData);
