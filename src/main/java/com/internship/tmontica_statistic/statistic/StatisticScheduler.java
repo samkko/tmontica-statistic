@@ -76,7 +76,7 @@ public class StatisticScheduler {
 
     //** SCHEDULING INTERVAL 분마다 접속기기별 주문건수 집계하는 스케쥴러 **//
     @Scheduled(cron = "0  0/"+SCHEDULING_INTERVAL_MINUTE+" *  *  * ?")
-    public void makeTatalUserAgent(){
+    public void makeTotalUserAgent(){
 
         log.info("[scheduler] start makeTotalUserAgent scheduler");
         List<OrderWithUserAgent> userAgentCountDataList = orderDao.getUserAgentByIntervalMinute(SCHEDULING_INTERVAL_MINUTE);
